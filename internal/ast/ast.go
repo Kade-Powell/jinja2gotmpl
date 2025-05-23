@@ -1,6 +1,9 @@
 package ast
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type NodeType string
 
@@ -26,6 +29,17 @@ type TextNode struct {
 
 func (n *TextNode) Type() NodeType { return NodeText }
 func (n *TextNode) String() string { return n.Content }
+
+type ForNode struct {
+	Item string // e.g. "iface"
+	List string // e.g. "interfaces"
+	Body []Node // inner block
+}
+
+func (n *ForNode) Type() NodeType { return NodeFor }
+func (n *ForNode) String() string {
+	return fmt.Sprintf("{%% for %s in %s %%} ... {%% endfor %%}", n.Item, n.List)
+}
 
 type FilterCall struct {
 	Name string
@@ -60,6 +74,17 @@ type IfNode struct {
 
 func (n *IfNode) Type() NodeType { return NodeIf }
 func (n *IfNode) String() string { return "{% if " + n.Condition + " %} ... {% endif %}" }
+
+type SetNode struct {
+	Name  string // variable name
+	Value string // raw string expression for now
+}
+
+func (n *SetNode) Type() NodeType { return "Set" }
+
+func (n *SetNode) String() string {
+	return fmt.Sprintf("{%% set %s = %s %%}", n.Name, n.Value)
+}
 
 // RootNode is the top-level node holding the entire template
 type RootNode struct {
